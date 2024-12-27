@@ -56,7 +56,8 @@
   </div>
 
   <script>
-    const apiUrl = 'http://localhost:3000/todos'; // 백엔드 API URL
+    const apiUrl = "http://be:8080/todos";
+    ; // 백엔드 Spring Boot API URL
     const todoList = document.getElementById('todo-list');
     const addBtn = document.getElementById('add-btn');
     const todoInput = document.getElementById('todo-input');
@@ -116,11 +117,14 @@
       try {
         const response = await fetch(`${apiUrl}/${id}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ completed }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text: "Your updated text here", completed }), // text 필드 포함
         });
+
         if (response.ok) {
-          fetchTodos(); // Refresh the list
+          fetchTodos(); // 목록 새로고침
         } else {
           console.error('Failed to update todo');
         }

@@ -9,6 +9,7 @@ import com.todolist.service.TodoService;
 
 @RestController
 @RequestMapping("/todos")
+@CrossOrigin(origins = "*", allowedHeaders = "*") // 모든 Origin과 헤더 허용
 public class TodoController {
     private final TodoService todoService;
 
@@ -29,5 +30,11 @@ public class TodoController {
     @DeleteMapping("/{id}")
     public void deleteTodo(@PathVariable Long id) {
         todoService.deleteById(id);
+    }
+    
+    // PUT 요청 처리 (ID로 특정 TODO 업데이트)
+    @PutMapping("/{id}")
+    public Todo updateTodo(@PathVariable Long id, @RequestBody Todo updatedTodo) {
+        return todoService.updateTodo(id, updatedTodo);
     }
 }

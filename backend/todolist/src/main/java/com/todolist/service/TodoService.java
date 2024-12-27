@@ -25,4 +25,12 @@ public class TodoService {
     public void deleteById(Long id) {
         todoRepository.deleteById(id);
     }
+    
+    public Todo updateTodo(Long id, Todo updatedTodo) {
+        return todoRepository.findById(id).map(todo -> {
+            todo.setText(updatedTodo.getText());
+            todo.setCompleted(updatedTodo.isCompleted());
+            return todoRepository.save(todo);
+        }).orElseThrow(() -> new RuntimeException("Todo not found with id " + id));
+    }
 }

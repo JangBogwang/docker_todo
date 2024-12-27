@@ -1,0 +1,44 @@
+version: '3.8'  # Docker Compose 파일의 버전. 최신 기능을 사용하려면 3.8 이상 권장.
+
+services:  # 각 서비스(컨테이너)를 정의하는 섹션.
+  db:  # MySQL 데이터베이스 서비스.
+    build:
+        context: ./DB  # MySQL 설정을 포함한 디렉토리를 빌드 컨텍스트로 사용.
+    container_name: db  # 컨테이너 이름을 'db'로 설정.
+    environment:  # MySQL 환경 변수를 설정.
+      MYSQL_ROOT_PASSWORD: ssafy  # MySQL 루트 사용자 비밀번호.
+      MYSQL_DATABASE: todo_app  # 생성할 기본 데이터베이스 이름.
+    volumes:
+      - db-data:/var/lib/mysql  # MySQL 데이터를 로컬 볼륨(db-data)에 저장.
+      - ./DB/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - internal-network  # 다른 컨테이너와 통신할 내부 네트워크에 연결.
+
+
+
+  be:  # 백엔드(Spring Boot) 서비스.
+    build:
+      context: ./backend/todolist  # Spring Boot 프로젝트 디렉토리를 빌드 컨텍스트로 사용.
+    container_name: be  # 컨테이너 이름을 'be'로 설정.
+    environment:  # 백엔드에서 사용할 환경 변수를 설정.
+      - SPRING_PROFILES_ACTIVE=docker  # Spring Boot에서 'docker' 프로파일 활성화.
+    depends_on:
+      - db
+    networks:
+      - internal-network  # 내부 네트워크에서만 통신 가능.
+
+  fe:  # 프론트엔드 서비스.
+    build:
+      context: ./frontend  # 프론트엔드 프로젝트 디렉토리를 빌드 컨텍스트로 사용.
+    container_name: fe  # 컨테이너 이름을 'fe'로 설정.
+    ports:
+      - "3000:80"  # 외부에서 접근 가능하도록 3000 포트를 호스트와 연결.
+    networks:
+      - internal-network  # 내부 네트워크에서 백엔드와 통신.
+
+networks:  # 네트워크 설정.
+  internal-network:  # 서비스 간 통신을 위한 내부 네트워크 정의.
+    driver: bridge  # 네트워크 드라이버를 'bridge'로 설정.
+
+volumes:  # 데이터 지속성을 위한 볼륨 설정.
+  db-data:  # MySQL 데이터가 저장될 볼륨.
